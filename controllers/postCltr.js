@@ -1,0 +1,3 @@
+exports.createPost = (req,res)=>{
+    
+} 
