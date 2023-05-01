@@ -2,9 +2,12 @@ const express = require('express')
 require('dotenv').config()
 const conectToDb = require('./config/conectToDb.js')
 const postRoute = require('./routes/post.js')
-const app = express()
-
+const morgan = require('morgan')
 conectToDb()
+
+const app = express()
+app.use(express.json())
+app.use(morgan('dev'))
 
 app.use('/api/post', postRoute)
 
