@@ -3,17 +3,17 @@ const mongoose = require('mongoose');
 const PostSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: true,
+        //required: true,
         trim: true
     },
     content: {
         type: String,
-        required: true,
+        //required: true,
         trim: true
     },
     meta: {
         type: String,
-        required: true,
+        //required: true,
         trim: true
     },
     tags: [String],

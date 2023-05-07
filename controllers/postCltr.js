@@ -1,6 +1,7 @@
 const { Post } = require('../model/posteModel.js')
 exports.createPostCrtl = async (req, res) => {
     const {title,content,meta,tags,slug,author} = req.body
+    console.log(req.file);
     const newpost = await Post.create({
         title: title,
         content: content,
