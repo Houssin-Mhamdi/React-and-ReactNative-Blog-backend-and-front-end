@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-const { createPostCrtl, postCountCltr,getAllPostsCltr,getPostsByIdCltr } = require('../controllers/postCltr.js');
+const { createPostCrtl, postCountCltr, getAllPostsCltr, getPostsByIdCltr } = require('../controllers/postCltr.js');
 const photoUpload = require('../middlewares/photoUpload.js');
+const { parsData } = require('../middlewares/parsData.js');
 
 router.route('/').get(getAllPostsCltr)
-router.post('/create', photoUpload.single('thumbnail'), createPostCrtl)
+router.post('/create', photoUpload.single('thumbnail'),parsData, createPostCrtl)
 router.route('/count').get(postCountCltr)
 router.route('/:id').get(getPostsByIdCltr)
 module.exports = router

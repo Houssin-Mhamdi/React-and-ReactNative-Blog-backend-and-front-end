@@ -1,16 +1,21 @@
 const { Post } = require('../model/posteModel.js')
 exports.createPostCrtl = async (req, res) => {
-    const { title, content, meta, tags, slug, author } = req.body
-    console.log(req.file);
-    const newpost = await Post.create({
-        title: title,
-        content: content,
-        meta: meta,
-        tags: tags,
-        slug: slug,
-        author: author
-    })
-    res.status(201).json(newpost)
+    try {
+        const { title, content, meta, tags, slug, author } = req.body
+        console.log(req.file);
+        //const parsedTags = JSON.parse(tags);
+        const newpost = await Post.create({
+            title: title,
+            content: content,
+            meta: meta,
+            tags: tags,
+            slug: slug,
+            author: author
+        })
+        res.status(201).json(newpost)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
 }
 
 //5.send response to the client
