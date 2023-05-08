@@ -1,7 +1,21 @@
+const { featuredPost } = require('../model/featuredPostes.js')
 const { Post } = require('../model/posteModel.js')
+
+const POST_PER_PAGE = 4
+const addToFeaturePost = async (postId) => {
+    const CreateFeaturePost = new featuredPost({ post: postId })
+    await CreateFeaturePost.save()
+    const featuredPosts = await featuredPost.find({}).sort({ createdAt: -1 })
+    featuredPosts.forEach(async (item, index) => {
+        if (index >= POST_PER_PAGE) {
+            await featuredPost.findByIdAndDelete(item._id)
+        }
+    })
+}
+
 exports.createPostCrtl = async (req, res) => {
     try {
-        const { title, content, meta, tags, slug, author } = req.body
+        const { title, content, meta, tags, slug, author, featured } = req.body
         console.log(req.file);
         //const parsedTags = JSON.parse(tags);
         const newpost = await Post.create({
@@ -13,6 +27,8 @@ exports.createPostCrtl = async (req, res) => {
             author: author
         })
         res.status(201).json(newpost)
+        if (featured) await addToFeaturePost(newpost._id)
+
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
