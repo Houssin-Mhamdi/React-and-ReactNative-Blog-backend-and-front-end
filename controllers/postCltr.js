@@ -1,5 +1,7 @@
 const { featuredPost } = require('../model/featuredPostes.js')
 const { Post } = require('../model/posteModel.js')
+const {cloudinaryUploadImages} = require("../utils/cloudinary.js")
+const path = require('path')
 
 const POST_PER_PAGE = 4
 const addToFeaturePost = async (postId) => {
@@ -15,6 +17,8 @@ const addToFeaturePost = async (postId) => {
 
 exports.createPostCrtl = async (req, res) => {
     try {
+        const imagePath = path.join(__dirname, `../images/${req.file.filename}`)
+        
         const { title, content, meta, tags, slug, author, featured } = req.body
         console.log(req.file);
         //const parsedTags = JSON.parse(tags);
@@ -25,6 +29,7 @@ exports.createPostCrtl = async (req, res) => {
             tags: tags,
             slug: slug,
             author: author
+            
         })
         res.status(201).json(newpost)
         if (featured) await addToFeaturePost(newpost._id)
