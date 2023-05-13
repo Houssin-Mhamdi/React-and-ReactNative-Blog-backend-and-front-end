@@ -18,4 +18,14 @@ const cloudinaryUploadImages = async (fileToUplode) => {
     throw new Error("Internal Server Error (cloudinary)")
   }
 }
-module.exports = { cloudinaryUploadImages }
+
+const cloudinaryDeleteImages = async (imagePublicId) => {
+  try {
+    const result = await cloudinary.uploader.destroy(imagePublicId)
+    return result
+  } catch (error) {
+    console.log(error);
+    throw new Error("Internal Server Error (cloudinary)")
+  }
+}
+module.exports = { cloudinaryUploadImages,cloudinaryDeleteImages }

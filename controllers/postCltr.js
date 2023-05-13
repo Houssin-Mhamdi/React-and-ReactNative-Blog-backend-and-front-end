@@ -1,6 +1,8 @@
 const { featuredPost } = require('../model/featuredPostes.js')
 const { Post } = require('../model/posteModel.js')
-const {cloudinaryUploadImages} = require("../utils/cloudinary.js")
+const { cloudinaryUploadImages ,cloudinaryDeleteImages} = require("../utils/cloudinary.js")
+const fs = require('fs')
+
 const path = require('path')
 
 const POST_PER_PAGE = 4
@@ -18,7 +20,8 @@ const addToFeaturePost = async (postId) => {
 exports.createPostCrtl = async (req, res) => {
     try {
         const imagePath = path.join(__dirname, `../images/${req.file.filename}`)
-        
+        const result = await cloudinaryUploadImages(imagePath)
+        console.log(result)
         const { title, content, meta, tags, slug, author, featured } = req.body
         console.log(req.file);
         //const parsedTags = JSON.parse(tags);
@@ -28,10 +31,15 @@ exports.createPostCrtl = async (req, res) => {
             meta: meta,
             tags: tags,
             slug: slug,
-            author: author
-            
+            author: author,
+            thumbnail: {
+                url: result.secure_url,
+                publicId: result.public_id
+            }
+
         })
         res.status(201).json(newpost)
+        fs.unlinkSync(imagePath)
         if (featured) await addToFeaturePost(newpost._id)
 
     } catch (error) {
@@ -63,7 +71,20 @@ exports.getAllPostsCltr = async (req, res) => {
     }
 
 }
+
+// for all users
 exports.getPostsByIdCltr = async (req, res) => {
     const Singlepost = await Post.findById(req.params.id)
     res.status(200).json(Singlepost)
+}
+
+//only admin can delete
+exports.deletPostsCltr = async (req, res) => {
+    const post = await Post.findById(req.params.id)
+    if(!post){
+       return res.status(404).json({message: 'No post found'})
+    }
+    await Post.findByIdAndDelete(req.params.id)
+    await cloudinaryDeleteImages(post.thumbnail.publicId)
+    res.status(200).json({message: 'Post has been deleted', postId: post._id})
 }
