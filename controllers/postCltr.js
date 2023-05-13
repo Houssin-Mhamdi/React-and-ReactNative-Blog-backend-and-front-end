@@ -1,6 +1,6 @@
 const { featuredPost } = require('../model/featuredPostes.js')
 const { Post } = require('../model/posteModel.js')
-const { cloudinaryUploadImages ,cloudinaryDeleteImages} = require("../utils/cloudinary.js")
+const { cloudinaryUploadImages, cloudinaryDeleteImages } = require("../utils/cloudinary.js")
 const fs = require('fs')
 
 const path = require('path')
@@ -81,10 +81,40 @@ exports.getPostsByIdCltr = async (req, res) => {
 //only admin can delete
 exports.deletPostsCltr = async (req, res) => {
     const post = await Post.findById(req.params.id)
-    if(!post){
-       return res.status(404).json({message: 'No post found'})
+    if (!post) {
+        return res.status(404).json({ message: 'No post found' })
     }
     await Post.findByIdAndDelete(req.params.id)
     await cloudinaryDeleteImages(post.thumbnail.publicId)
-    res.status(200).json({message: 'Post has been deleted', postId: post._id})
+    res.status(200).json({ message: 'Post has been deleted', postId: post._id })
+}
+
+//only admin can update
+exports.updatePostsCltr = async (req, res) => {
+    const post = await Post.findById(req.params.id)
+    if (!post) {
+        return res.status(404).json({ message: 'No post found' })
+    }
+    //delete old image
+    await cloudinaryDeleteImages(post.thumbnail.publicId) 
+    //uplode new image
+    const imagePath = path.join(__dirname, `../images/${req.file.filename}`)
+   
+    const result = await cloudinaryUploadImages(imagePath)
+    const updatedPost = await Post.findByIdAndUpdate(req.params.id, {
+        $set: {
+            title: req.body.title,
+            content: req.body.content,
+            meta: req.body.meta,
+            tags: req.body.tags,
+            slug: req.body.slug,
+            author: req.body.author,
+            thumbnail: {
+                url: result.secure_url,
+                publicId: result.public_id
+            }
+        }
+    }, { new: true })
+    res.status(200).json({updatedPost})
+    fs.unlinkSync(imagePath)
 }
